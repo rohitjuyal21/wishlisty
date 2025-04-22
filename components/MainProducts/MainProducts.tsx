@@ -1,24 +1,20 @@
-import { getUser } from "@/lib/getUser";
-import prisma from "@/lib/prisma";
 import React from "react";
 import ProductCard from "./ProductCard";
 import Image from "next/image";
+import { ProductItem } from "@/types/product";
+import AddProductModal from "./AddProductModal";
 
-export default async function MainProducts() {
-  const user = await getUser();
-  const products = await prisma.wishList.findMany({
-    where: {
-      user_id: user?.id,
-    },
-    omit: {
-      user_id: true,
-    },
-  });
-
-  console.log(products);
+export default function MainProducts({
+  products,
+}: {
+  products: ProductItem[];
+}) {
   return (
     <div className="flex flex-col">
-      <h3 className="text-2xl font-extrabold">Your WishList</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-2xl font-extrabold">Your WishList</h3>
+        <AddProductModal />
+      </div>
       {products.length > 0 ? (
         <div className="my-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-3">
           {products.map((product) => (

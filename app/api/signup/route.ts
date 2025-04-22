@@ -28,16 +28,13 @@ export async function POST(req: Request) {
         password: hashedPassword,
       },
     });
-    console.log(process.env.JWT_SECRET);
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!);
-    console.log("tojen", token);
-
-    console.log(user);
 
     const cookie = await cookies();
     cookie.set("token", token, {
       maxAge: 15 * 24 * 60 * 60,
+      httpOnly: true,
     });
 
     return Response.json(
