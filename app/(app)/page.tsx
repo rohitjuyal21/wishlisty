@@ -1,11 +1,22 @@
 import MainProducts from "@/components/MainProducts/MainProducts";
 import { getUser } from "@/lib/getUser";
 import prisma from "@/lib/prisma";
-export default async function Home() {
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ priority: string; category: string }>;
+}) {
+  const { priority, category } = await searchParams;
   const user = await getUser();
   const products = await prisma.wishList.findMany({
     where: {
       user_id: user?.id,
+      ...(priority &&
+        priority !== "all" && {
+          priority: priority.toUpperCase(),
+        }),
+      ...(category && { category }),
     },
     omit: {
       user_id: true,

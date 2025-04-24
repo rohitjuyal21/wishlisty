@@ -2,7 +2,6 @@
 import { getDomain, getFaviconUrl } from "@/lib/getUrl";
 import { ProductItem } from "@/types/product";
 import Image from "next/image";
-import Link from "next/link";
 import React, { useState } from "react";
 import { Badge } from "../ui/badge";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -33,15 +32,20 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { AlertProductDialog } from "./AlertProductDialog";
+import Link from "next/link";
 
 export default function ProductCard({ product }: { product: ProductItem }) {
   const [open, setOpen] = useState(false);
   const [isImageError, setIsImageError] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [isDeletingProductLoading, setIsDeletingProductLoading] =
+    useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const iconUrl = getFaviconUrl(product.productLink);
-  const { fullUrl, domain } = getDomain(product.productLink);
+  const { domain } = getDomain(product.productLink);
 
   const handleCategoryClick = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -67,61 +71,83 @@ export default function ProductCard({ product }: { product: ProductItem }) {
     }
   };
 
+  const handleDelete = async () => {
+    setIsDeletingProductLoading(true);
+    try {
+      const response = await axios.delete("/api/wishlist", {
+        data: {
+          id: product.id,
+        },
+      });
+
+      if (response.data.status === "success") {
+        toast.success("Product deleted successfully");
+        setIsAlertOpen(false);
+        router.refresh();
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsDeletingProductLoading(false);
+    }
+  };
+
   return (
     <div className="to-muted/50 relative rounded-xl border bg-gradient-to-br from-transparent transition-all duration-300 before:absolute before:-top-px before:left-0 before:h-px before:w-full before:bg-gradient-to-r before:from-transparent before:from-20% before:via-blue-500/70 before:via-50% before:to-transparent before:to-80% after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-gradient-to-r after:from-transparent after:from-20% after:via-blue-500/70 after:via-50% after:to-transparent after:to-80%">
       <div className="flex h-full flex-col gap-4 p-4">
         <div className="flex justify-between">
-          <Link href={product.productLink} target="_blank">
-            <div className="flex items-center gap-2">
-              <div className="bg-muted/50 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border">
-                {iconUrl && !isImageError ? (
-                  <Image
-                    src={iconUrl}
-                    alt={product.productName}
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                    onError={() => {
-                      setIsImageError(true);
-                    }}
-                  />
-                ) : (
-                  <span className="font-rowdies text-2xl font-bold uppercase">
-                    {domain.slice(0, 1)}
-                  </span>
+          <Link
+            href={product.productLink}
+            target="_blank"
+            className="flex items-center gap-2"
+          >
+            <div className="bg-muted/50 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border">
+              {iconUrl && !isImageError ? (
+                <Image
+                  src={iconUrl}
+                  alt={product.productName}
+                  width={48}
+                  height={48}
+                  className="rounded-full"
+                  onError={() => {
+                    setIsImageError(true);
+                  }}
+                />
+              ) : (
+                <span className="font-rowdies text-2xl font-bold uppercase">
+                  {domain.slice(0, 1)}
+                </span>
+              )}
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <h4 className="line-clamp-2 font-bold">
+                  {product.productName}
+                </h4>
+                {product.purchased && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-green-700 text-white">
+                          <Check className="size-3" strokeWidth={3} />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="text-xs">
+                        Product purchased
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 )}
               </div>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <h4 className="line-clamp-2 font-bold">
-                    {product.productName}
-                  </h4>
-                  {product.purchased && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-green-700 text-white">
-                            <Check className="size-3" strokeWidth={3} />
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" className="text-xs">
-                          Product purchased
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                </div>
-                <Link href={fullUrl} target="_blank">
-                  <Badge
-                    variant="secondary"
-                    className="rounded-full py-px text-[10px] font-medium underline-offset-2 hover:underline"
-                  >
-                    {domain}
-                  </Badge>
-                </Link>
-              </div>
+              <Badge
+                variant="secondary"
+                className="rounded-full py-px text-[10px] font-medium underline-offset-2 hover:underline"
+              >
+                {domain}
+              </Badge>
             </div>
           </Link>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" variant="ghost">
@@ -135,7 +161,10 @@ export default function ProductCard({ product }: { product: ProductItem }) {
               >
                 <Edit className="size-4" /> Edit
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setIsAlertOpen(true)}
+                className="cursor-pointer"
+              >
                 <Trash2 className="size-4" /> Delete
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -179,6 +208,12 @@ export default function ProductCard({ product }: { product: ProductItem }) {
         open={open}
         setOpen={setOpen}
         defaultValues={product}
+      />
+      <AlertProductDialog
+        open={isAlertOpen}
+        setOpen={setIsAlertOpen}
+        handleDelete={handleDelete}
+        isLoading={isDeletingProductLoading}
       />
     </div>
   );

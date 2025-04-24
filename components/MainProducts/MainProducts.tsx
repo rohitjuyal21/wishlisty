@@ -6,6 +6,7 @@ import { ProductItem } from "@/types/product";
 import AddEditProductModal from "./AddEditProductModal";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
+import PriorityFilter from "./PriorityFilter";
 
 export default function MainProducts({
   products,
@@ -14,18 +15,20 @@ export default function MainProducts({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="flex flex-col">
+    <div className="flex h-full flex-col">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-extrabold">Your WishList</h3>
-
-        <Button
-          variant="default"
-          className="gap-2"
-          onClick={() => setOpen(true)}
-        >
-          <Plus />
-          Add to Wishlist
-        </Button>
+        <div className="flex items-center gap-2">
+          <PriorityFilter />
+          <Button
+            variant="default"
+            className="gap-2"
+            onClick={() => setOpen(true)}
+          >
+            <Plus />
+            Add to Wishlist
+          </Button>
+        </div>
       </div>
       {products.length > 0 ? (
         <div className="my-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-3">
