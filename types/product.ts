@@ -6,7 +6,7 @@ export interface ProductItem {
   priority: string;
   category: string;
   purchased: boolean;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-  remindAt: string | Date;
+  createdAt: Date;
+  updatedAt: Date;
+  remindAt: Date;
 }

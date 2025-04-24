@@ -12,5 +12,11 @@ export default async function Home() {
     },
   });
 
-  return <MainProducts products={products} />;
+  const sortedProducts = products.sort((a, b) => {
+    if (a.purchased && !b.purchased) return 1;
+    if (!a.purchased && b.purchased) return -1;
+    return 0;
+  });
+
+  return <MainProducts products={sortedProducts} />;
 }

@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -35,7 +34,7 @@ import {
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { CalendarDaysIcon, Plus } from "lucide-react";
+import { CalendarDaysIcon, Loader2, Plus } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
@@ -43,30 +42,64 @@ import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
 import { priorityOptions } from "@/lib/product";
 import { WishlistItemSchema } from "@/lib/schemas";
+import axios from "axios";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { ProductItem } from "@/types/product";
 
-export default function AddProductModal() {
-  const [open, setOpen] = useState(false);
+interface AddEditProductModalProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  defaultValues?: ProductItem;
+}
+
+export default function AddEditProductModal({
+  open,
+  setOpen,
+  defaultValues,
+}: AddEditProductModalProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   type WishlistItemForm = z.infer<typeof WishlistItemSchema>;
 
   const form = useForm<WishlistItemForm>({
     resolver: zodResolver(WishlistItemSchema),
     defaultValues: {
-      productName: "",
-      productLink: "",
-      note: "",
-      priority: undefined,
-      category: "",
-      purchased: false,
-      remindAt: undefined,
+      productName: defaultValues?.productName || "",
+      productLink: defaultValues?.productLink || "",
+      note: defaultValues?.note || "",
+      priority: defaultValues?.priority || undefined,
+      category: defaultValues?.category || "",
+      purchased: defaultValues?.purchased || false,
+      remindAt: defaultValues?.remindAt || undefined,
     },
   });
 
-  const onSubmit: SubmitHandler<WishlistItemForm> = (data) => {
-    // Here you would submit to your backend or Supabase
-    alert("Submitted!\n" + JSON.stringify(data, null, 2));
-    setOpen(false);
-    form.reset();
+  const onSubmit: SubmitHandler<WishlistItemForm> = async (data) => {
+    // Have to write edit api route
+    setIsLoading(true);
+    try {
+      const response = await axios.post("/api/wishlist", {
+        productName: data.productName,
+        productLink: data.productLink,
+        note: data.note,
+        priority: data.priority,
+        category: data.category,
+        purchased: data.purchased,
+        remindAt: data.remindAt,
+      });
+      if (response.data.status === "success") {
+        toast.success("Product added to wishlist");
+        router.refresh();
+        setOpen(false);
+        form.reset();
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleModalChange = () => {
@@ -76,17 +109,15 @@ export default function AddProductModal() {
 
   return (
     <Dialog open={open} onOpenChange={handleModalChange}>
-      <DialogTrigger asChild>
-        <Button variant="default" className="gap-2">
-          <Plus />
-          Add to Wishlist
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="h-fit overflow-auto sm:max-w-[600px]">
+      <DialogContent className="max-h-screen overflow-y-scroll sm:max-w-[600px]">
         <DialogHeader className="mb-4">
-          <DialogTitle>Add Wishlist Item</DialogTitle>
+          <DialogTitle>
+            {defaultValues ? "Update Wishlist Item" : "Add Wishlist Item"}
+          </DialogTitle>
           <DialogDescription>
-            Fill the details below to add to your wishlist.
+            {defaultValues
+              ? "Edit the details below to update your wishlist item."
+              : "Fill the details below to add to your wishlist."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -111,11 +142,7 @@ export default function AddProductModal() {
                 <FormItem>
                   <FormLabel>Product Link</FormLabel>
                   <FormControl>
-                    <Input
-                      type="url"
-                      placeholder="https://example.com/item"
-                      {...field}
-                    />
+                    <Input placeholder="https://example.com/item" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -139,7 +166,7 @@ export default function AddProductModal() {
                 </FormItem>
               )}
             />
-            <div className="flex gap-4">
+            <div className="flex items-start gap-4">
               <FormField
                 control={form.control}
                 name="priority"
@@ -243,9 +270,13 @@ export default function AddProductModal() {
               )}
             />
             <DialogFooter>
-              <Button type="submit" className="w-full">
-                <Plus />
-                Add Item
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Plus />
+                )}
+                Add Product
               </Button>
             </DialogFooter>
           </form>

@@ -1,19 +1,31 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import ProductCard from "./ProductCard";
 import Image from "next/image";
 import { ProductItem } from "@/types/product";
-import AddProductModal from "./AddProductModal";
+import AddEditProductModal from "./AddEditProductModal";
+import { Button } from "../ui/button";
+import { Plus } from "lucide-react";
 
 export default function MainProducts({
   products,
 }: {
   products: ProductItem[];
 }) {
+  const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-extrabold">Your WishList</h3>
-        <AddProductModal />
+
+        <Button
+          variant="default"
+          className="gap-2"
+          onClick={() => setOpen(true)}
+        >
+          <Plus />
+          Add to Wishlist
+        </Button>
       </div>
       {products.length > 0 ? (
         <div className="my-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-3">
@@ -37,6 +49,7 @@ export default function MainProducts({
           </p>
         </div>
       )}
+      <AddEditProductModal open={open} setOpen={setOpen} />
     </div>
   );
 }

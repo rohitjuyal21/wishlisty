@@ -1,7 +1,8 @@
 export function getFaviconUrl(websiteUrl: string): string | null {
   try {
     const url = new URL(websiteUrl);
-    return `${url.protocol}//${url.hostname}/favicon.ico`;
+
+    return `https://icons.duckduckgo.com/ip2/${url.hostname}.ico`;
   } catch (err) {
     console.error("Invalid URL", err);
     return null;
