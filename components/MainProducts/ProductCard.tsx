@@ -65,28 +65,29 @@ export default function ProductCard({ product }: { product: ProductItem }) {
           `${product.purchased ? "Unmarked" : "Marked"} as purchased`,
         );
         router.refresh();
+      } else {
+        toast.error("Failed to update purchased status");
       }
     } catch (error) {
       console.log(error);
+      toast.error("Failed to update purchased status");
     }
   };
 
   const handleDelete = async () => {
     setIsDeletingProductLoading(true);
     try {
-      const response = await axios.delete("/api/wishlist", {
-        data: {
-          id: product.id,
-        },
-      });
-
+      const response = await axios.delete(`/api/wishlist/${product.id}`);
       if (response.data.status === "success") {
         toast.success("Product deleted successfully");
         setIsAlertOpen(false);
         router.refresh();
+      } else {
+        toast.error("Failed to delete product");
       }
     } catch (error) {
       console.log(error);
+      toast.error("Failed to delete product");
     } finally {
       setIsDeletingProductLoading(false);
     }
@@ -208,6 +209,7 @@ export default function ProductCard({ product }: { product: ProductItem }) {
         open={open}
         setOpen={setOpen}
         defaultValues={product}
+        productId={product.id}
       />
       <AlertProductDialog
         open={isAlertOpen}
