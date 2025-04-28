@@ -16,15 +16,19 @@ export default async function page({
   const purchasedPoducts = await prisma.wishList.findMany({
     where: {
       user_id: user?.id,
-      purchased: true,
       ...(priority &&
         priority !== "all" && {
           priority: priority.toUpperCase(),
         }),
       ...(category && { category_id: Number(category) }),
+      purchased: true,
     },
-    omit: {
-      user_id: true,
+    include: {
+      category: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
   return (

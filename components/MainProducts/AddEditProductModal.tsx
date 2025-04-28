@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Dialog,
@@ -63,6 +63,9 @@ export default function AddEditProductModal({
   productId,
 }: AddEditProductModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
+    [],
+  );
   const router = useRouter();
 
   type WishlistItemForm = z.infer<typeof WishlistItemSchema>;
@@ -74,11 +77,25 @@ export default function AddEditProductModal({
       productLink: defaultValues?.productLink || "",
       note: defaultValues?.note || "",
       priority: defaultValues?.priority || undefined,
-      category: defaultValues?.category || "",
+      category_id: defaultValues?.category_id?.toString() || undefined,
       purchased: defaultValues?.purchased || false,
       remindAt: defaultValues?.remindAt || undefined,
     },
   });
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("/api/categories");
+      setCategories(response.data.data);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to fetch categories");
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const addProduct = async (data: WishlistItemForm) => {
     setIsLoading(true);
@@ -88,7 +105,7 @@ export default function AddEditProductModal({
         productLink: data.productLink,
         note: data.note,
         priority: data.priority,
-        category: data.category,
+        category_id: data.category_id,
         purchased: data.purchased,
         remindAt: data.remindAt,
       });
@@ -116,7 +133,7 @@ export default function AddEditProductModal({
         productLink: data.productLink,
         note: data.note,
         priority: data.priority,
-        category: data.category,
+        category_id: data.category_id,
         purchased: data.purchased,
         remindAt: data.remindAt,
       });
@@ -242,13 +259,36 @@ export default function AddEditProductModal({
               />
               <FormField
                 control={form.control}
-                name="category"
+                name="category_id"
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel>Category</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Electronics" {...field} />
-                    </FormControl>
+                    <Select
+                      value={field.value?.toString()}
+                      onValueChange={field.onChange}
+                      defaultValue={field.value?.toString()}
+                    >
+                      <FormControl className="w-full">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose category">
+                            {categories.find(
+                              (c) =>
+                                c.id.toString() === field.value?.toString(),
+                            )?.name || "Choose category"}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

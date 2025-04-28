@@ -10,11 +10,12 @@ export async function POST(req: Request) {
       productLink,
       note,
       priority,
-      category,
+      category_id,
       purchased,
       remindAt,
     } = body;
     const user = await getUser();
+    console.log("user", user);
 
     if (!user) {
       return Response.json(
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
         productLink,
         note,
         priority,
-        category,
+        category_id: Number(category_id),
         purchased,
         remindAt,
         user_id: user.id,

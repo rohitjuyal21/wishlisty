@@ -1,17 +1,16 @@
-export interface CategoryItem {
-  id: number;
-  name: string;
-}
-
 export interface ProductItem {
   id: number;
   productName: string;
   productLink: string;
   note: string;
   priority: string;
-  category: CategoryItem;
+  category_id: number;
+  category: {
+    name: string;
+  };
   purchased: boolean;
   createdAt: Date;
   updatedAt: Date;
   remindAt: Date;
+  user_id: number;
 }
