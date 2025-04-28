@@ -9,19 +9,27 @@ export default async function Home({
 }) {
   const { priority, category } = await searchParams;
   const user = await getUser();
+  // const products = await prisma.wishList.findMany({
+  //   where: {
+  //     user_id: user?.id,
+  //     ...(priority &&
+  //       priority !== "all" && {
+  //         priority: priority.toUpperCase(),
+  //       }),
+  //     ...(category && { category_id: Number(category) }),
+  //   },
+  //   omit: {
+  //     user_id: true,
+  //   },
+  // });
+
   const products = await prisma.wishList.findMany({
-    where: {
-      user_id: user?.id,
-      ...(priority &&
-        priority !== "all" && {
-          priority: priority.toUpperCase(),
-        }),
-      ...(category && { category }),
-    },
-    omit: {
-      user_id: true,
+    include: {
+      category: true,
+      user: true,
     },
   });
+  console.log(products);
 
   const sortedProducts = products.sort((a, b) => {
     if (a.purchased && !b.purchased) return 1;

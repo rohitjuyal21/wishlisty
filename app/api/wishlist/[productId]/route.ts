@@ -6,7 +6,7 @@ export async function PUT(
   { params }: { params: { productId: string } },
 ) {
   try {
-    const { productId } = params;
+    const { productId } = await params;
     const body = await req.json();
 
     const {
@@ -63,7 +63,7 @@ export async function DELETE(
   { params }: { params: { productId: string } },
 ) {
   try {
-    const { productId } = params;
+    const { productId } = await params;
 
     const user = await getUser();
 

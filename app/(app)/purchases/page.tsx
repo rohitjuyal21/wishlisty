@@ -21,7 +21,7 @@ export default async function page({
         priority !== "all" && {
           priority: priority.toUpperCase(),
         }),
-      ...(category && { category }),
+      ...(category && { category_id: Number(category) }),
     },
     omit: {
       user_id: true,

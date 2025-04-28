@@ -4,9 +4,9 @@ export function middleware(req: NextRequest) {
   const token = req.cookies.get("token");
   const { pathname } = req.nextUrl;
 
-  if (!token) {
-    return NextResponse.redirect(new URL("/signin", req.url));
-  }
+  // if (!token) {
+  //   return NextResponse.redirect(new URL("/signin", req.url));
+  // }
 
   if (pathname.startsWith("/signin") || pathname.startsWith("/signup")) {
     return NextResponse.next();
