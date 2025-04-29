@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Dialog,
@@ -54,6 +54,7 @@ interface AddEditProductModalProps {
   setOpen: (open: boolean) => void;
   defaultValues?: ProductItem;
   productId?: number;
+  categories: { id: number; name: string }[];
 }
 
 export default function AddEditProductModal({
@@ -61,8 +62,12 @@ export default function AddEditProductModal({
   setOpen,
   defaultValues,
   productId,
+  categories,
 }: AddEditProductModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategory, setCustomCategory] = useState<string | null>(null);
   const router = useRouter();
 
   type WishlistItemForm = z.infer<typeof WishlistItemSchema>;
@@ -74,7 +79,7 @@ export default function AddEditProductModal({
       productLink: defaultValues?.productLink || "",
       note: defaultValues?.note || "",
       priority: defaultValues?.priority || undefined,
-      category: defaultValues?.category || "",
+      category: defaultValues?.category.name || undefined,
       purchased: defaultValues?.purchased || false,
       remindAt: defaultValues?.remindAt || undefined,
     },
@@ -88,15 +93,14 @@ export default function AddEditProductModal({
         productLink: data.productLink,
         note: data.note,
         priority: data.priority,
-        category: data.category,
+        category: data.category || customCategory?.toLowerCase(),
         purchased: data.purchased,
         remindAt: data.remindAt,
       });
       if (response.data.status === "success") {
         toast.success("Product added to wishlist");
         router.refresh();
-        setOpen(false);
-        form.reset();
+        handleModalChange();
       } else {
         toast.error("Failed to add product");
       }
@@ -116,15 +120,14 @@ export default function AddEditProductModal({
         productLink: data.productLink,
         note: data.note,
         priority: data.priority,
-        category: data.category,
+        category: data.category || customCategory?.toLowerCase(),
         purchased: data.purchased,
         remindAt: data.remindAt,
       });
       if (response.data.status === "success") {
         toast.success("Product updated successfully");
         router.refresh();
-        setOpen(false);
-        form.reset();
+        handleModalChange();
       } else {
         toast.error("Failed to update product");
       }
@@ -146,8 +149,46 @@ export default function AddEditProductModal({
 
   const handleModalChange = () => {
     setOpen(!open);
-    form.reset();
+    if (defaultValues && open) {
+      form.reset({
+        productName: defaultValues.productName,
+        productLink: defaultValues.productLink,
+        note: defaultValues.note,
+        priority: defaultValues.priority,
+        category: defaultValues.category.name,
+        purchased: defaultValues.purchased,
+        remindAt: defaultValues.remindAt,
+      });
+    } else {
+      form.reset();
+    }
+    setSelectedCategory(null);
+    setIsCustomCategory(false);
+    setCustomCategory(null);
   };
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    if (value === "custom") {
+      setIsCustomCategory(true);
+    } else {
+      setIsCustomCategory(false);
+    }
+  };
+
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset({
+        productName: defaultValues.productName,
+        productLink: defaultValues.productLink,
+        note: defaultValues.note,
+        priority: defaultValues.priority,
+        category: defaultValues.category.name,
+        purchased: defaultValues.purchased,
+        remindAt: defaultValues.remindAt,
+      });
+    }
+  }, [defaultValues, form]);
 
   return (
     <Dialog open={open} onOpenChange={handleModalChange}>
@@ -246,9 +287,45 @@ export default function AddEditProductModal({
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel>Category</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Electronics" {...field} />
-                    </FormControl>
+                    {isCustomCategory ? (
+                      <FormControl>
+                        <Input
+                          autoFocus
+                          placeholder="Enter category name"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                    ) : (
+                      <Select
+                        value={selectedCategory?.toString()}
+                        onValueChange={handleCategoryChange}
+                        defaultValue={field.value?.toString()}
+                      >
+                        <FormControl className="w-full">
+                          <SelectTrigger className="capitalize">
+                            <SelectValue placeholder="Choose category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem
+                              key={category.id}
+                              value={category.name}
+                              className="capitalize"
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                          <SelectItem
+                            value="custom"
+                            onClick={() => setIsCustomCategory(true)}
+                          >
+                            Custom
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

@@ -4,9 +4,13 @@ export interface ProductItem {
   productLink: string;
   note: string;
   priority: string;
-  category: string;
+  category_id: number;
+  category: {
+    name: string;
+  };
   purchased: boolean;
   createdAt: Date;
   updatedAt: Date;
   remindAt: Date;
+  user_id: number;
 }

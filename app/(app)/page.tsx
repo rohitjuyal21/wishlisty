@@ -16,10 +16,14 @@ export default async function Home({
         priority !== "all" && {
           priority: priority.toUpperCase(),
         }),
-      ...(category && { category }),
+      ...(category && { category_id: Number(category) }),
     },
-    omit: {
-      user_id: true,
+    include: {
+      category: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
 

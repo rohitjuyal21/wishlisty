@@ -10,7 +10,11 @@ export async function POST() {
       from: "Wishlisty <wishlisty@rohitjuyal.com>",
       to: ["rohitjuyal2003@gmail.com"],
       subject: "Reminder about your wishlist item",
-      react: React.createElement(EmailTemplate, { firstName: "John" }),
+      react: React.createElement(EmailTemplate, {
+        firstName: "John",
+        productName: "Product Name",
+        productLink: "https://www.google.com",
+      }),
     });
 
     if (error) {
