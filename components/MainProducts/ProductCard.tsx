@@ -35,7 +35,12 @@ import {
 import { AlertProductDialog } from "./AlertProductDialog";
 import Link from "next/link";
 
-export default function ProductCard({ product }: { product: ProductItem }) {
+interface ProductCardProps {
+  product: ProductItem;
+  categories: { id: number; name: string }[];
+}
+
+export default function ProductCard({ product, categories }: ProductCardProps) {
   const [open, setOpen] = useState(false);
   const [isImageError, setIsImageError] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -210,6 +215,7 @@ export default function ProductCard({ product }: { product: ProductItem }) {
         setOpen={setOpen}
         defaultValues={product}
         productId={product.id}
+        categories={categories}
       />
       <AlertProductDialog
         open={isAlertOpen}

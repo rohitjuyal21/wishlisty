@@ -54,6 +54,7 @@ interface AddEditProductModalProps {
   setOpen: (open: boolean) => void;
   defaultValues?: ProductItem;
   productId?: number;
+  categories: { id: number; name: string }[];
 }
 
 export default function AddEditProductModal({
@@ -61,11 +62,12 @@ export default function AddEditProductModal({
   setOpen,
   defaultValues,
   productId,
+  categories,
 }: AddEditProductModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
-    [],
-  );
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategory, setCustomCategory] = useState<string | null>(null);
   const router = useRouter();
 
   type WishlistItemForm = z.infer<typeof WishlistItemSchema>;
@@ -77,25 +79,11 @@ export default function AddEditProductModal({
       productLink: defaultValues?.productLink || "",
       note: defaultValues?.note || "",
       priority: defaultValues?.priority || undefined,
-      category_id: defaultValues?.category_id?.toString() || undefined,
+      category: defaultValues?.category.name || undefined,
       purchased: defaultValues?.purchased || false,
       remindAt: defaultValues?.remindAt || undefined,
     },
   });
-
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get("/api/categories");
-      setCategories(response.data.data);
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to fetch categories");
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
   const addProduct = async (data: WishlistItemForm) => {
     setIsLoading(true);
@@ -105,15 +93,14 @@ export default function AddEditProductModal({
         productLink: data.productLink,
         note: data.note,
         priority: data.priority,
-        category_id: data.category_id,
+        category: data.category || customCategory?.toLowerCase(),
         purchased: data.purchased,
         remindAt: data.remindAt,
       });
       if (response.data.status === "success") {
         toast.success("Product added to wishlist");
         router.refresh();
-        setOpen(false);
-        form.reset();
+        handleModalChange();
       } else {
         toast.error("Failed to add product");
       }
@@ -133,15 +120,14 @@ export default function AddEditProductModal({
         productLink: data.productLink,
         note: data.note,
         priority: data.priority,
-        category_id: data.category_id,
+        category: data.category || customCategory?.toLowerCase(),
         purchased: data.purchased,
         remindAt: data.remindAt,
       });
       if (response.data.status === "success") {
         toast.success("Product updated successfully");
         router.refresh();
-        setOpen(false);
-        form.reset();
+        handleModalChange();
       } else {
         toast.error("Failed to update product");
       }
@@ -163,8 +149,46 @@ export default function AddEditProductModal({
 
   const handleModalChange = () => {
     setOpen(!open);
-    form.reset();
+    if (defaultValues && open) {
+      form.reset({
+        productName: defaultValues.productName,
+        productLink: defaultValues.productLink,
+        note: defaultValues.note,
+        priority: defaultValues.priority,
+        category: defaultValues.category.name,
+        purchased: defaultValues.purchased,
+        remindAt: defaultValues.remindAt,
+      });
+    } else {
+      form.reset();
+    }
+    setSelectedCategory(null);
+    setIsCustomCategory(false);
+    setCustomCategory(null);
   };
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    if (value === "custom") {
+      setIsCustomCategory(true);
+    } else {
+      setIsCustomCategory(false);
+    }
+  };
+
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset({
+        productName: defaultValues.productName,
+        productLink: defaultValues.productLink,
+        note: defaultValues.note,
+        priority: defaultValues.priority,
+        category: defaultValues.category.name,
+        purchased: defaultValues.purchased,
+        remindAt: defaultValues.remindAt,
+      });
+    }
+  }, [defaultValues, form]);
 
   return (
     <Dialog open={open} onOpenChange={handleModalChange}>
@@ -259,36 +283,49 @@ export default function AddEditProductModal({
               />
               <FormField
                 control={form.control}
-                name="category_id"
+                name="category"
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel>Category</FormLabel>
-                    <Select
-                      value={field.value?.toString()}
-                      onValueChange={field.onChange}
-                      defaultValue={field.value?.toString()}
-                    >
-                      <FormControl className="w-full">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose category">
-                            {categories.find(
-                              (c) =>
-                                c.id.toString() === field.value?.toString(),
-                            )?.name || "Choose category"}
-                          </SelectValue>
-                        </SelectTrigger>
+                    {isCustomCategory ? (
+                      <FormControl>
+                        <Input
+                          autoFocus
+                          placeholder="Enter category name"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                        />
                       </FormControl>
-                      <SelectContent>
-                        {categories.map((category) => (
+                    ) : (
+                      <Select
+                        value={selectedCategory?.toString()}
+                        onValueChange={handleCategoryChange}
+                        defaultValue={field.value?.toString()}
+                      >
+                        <FormControl className="w-full">
+                          <SelectTrigger className="capitalize">
+                            <SelectValue placeholder="Choose category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem
+                              key={category.id}
+                              value={category.name}
+                              className="capitalize"
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))}
                           <SelectItem
-                            key={category.id}
-                            value={category.id.toString()}
+                            value="custom"
+                            onClick={() => setIsCustomCategory(true)}
                           >
-                            {category.name}
+                            Custom
                           </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        </SelectContent>
+                      </Select>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

@@ -27,7 +27,7 @@ export const WishlistItemSchema = z.object({
   priority: z.string({
     required_error: "Priority is required",
   }),
-  category_id: z.string({
+  category: z.string({
     required_error: "Category is required",
   }),
   purchased: z.boolean().optional(),

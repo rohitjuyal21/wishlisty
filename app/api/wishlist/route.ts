@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       productLink,
       note,
       priority,
-      category_id,
+      category,
       purchased,
       remindAt,
     } = body;
@@ -24,13 +24,28 @@ export async function POST(req: Request) {
       );
     }
 
+    const existingCategory = await prisma.category.findUnique({
+      where: { name: category },
+    });
+
+    let category_id: number;
+
+    if (!existingCategory) {
+      const newCategory = await prisma.category.create({
+        data: { name: category },
+      });
+      category_id = newCategory.id;
+    } else {
+      category_id = existingCategory.id;
+    }
+
     const wishlistItem = await prisma.wishList.create({
       data: {
         productName,
         productLink,
         note,
         priority,
-        category_id: Number(category_id),
+        category_id,
         purchased,
         remindAt,
         user_id: user.id,

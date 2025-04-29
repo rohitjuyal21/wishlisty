@@ -27,6 +27,23 @@ export async function PUT(
       );
     }
 
+    const existingCategory = await prisma.category.findUnique({
+      where: {
+        name: category,
+      },
+    });
+
+    let category_id: number;
+
+    if (!existingCategory) {
+      const newCategory = await prisma.category.create({
+        data: { name: category },
+      });
+      category_id = newCategory.id;
+    } else {
+      category_id = existingCategory.id;
+    }
+
     const wishlistItem = await prisma.wishList.update({
       where: {
         id: Number(productId),
@@ -37,10 +54,11 @@ export async function PUT(
         productLink,
         note,
         priority,
-        category,
+        category_id,
         purchased,
         remindAt,
         user_id: user.id,
+        updatedAt: new Date(),
       },
     });
 
