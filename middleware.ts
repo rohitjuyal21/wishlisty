@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export default async function middleware(req: NextRequest) {
   const session = await auth();
-  console.log(session);
   if (
     !session &&
     req.nextUrl.pathname !== "/signin" &&

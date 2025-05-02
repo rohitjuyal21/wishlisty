@@ -1,4 +1,4 @@
-import { getUser } from "@/lib/getUser";
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
 export async function PUT(
@@ -18,9 +18,9 @@ export async function PUT(
       purchased,
       remindAt,
     } = body;
-    const user = await getUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session) {
       return Response.json(
         { message: "Unauthorized", status: "error" },
         { status: 401 },
@@ -47,7 +47,7 @@ export async function PUT(
     const wishlistItem = await prisma.wishList.update({
       where: {
         id: Number(productId),
-        user_id: user.id,
+        user_id: session?.user?.id,
       },
       data: {
         productName,
@@ -57,7 +57,7 @@ export async function PUT(
         category_id,
         purchased,
         remindAt,
-        user_id: user.id,
+        user_id: session?.user?.id,
         updatedAt: new Date(),
       },
     });
@@ -83,9 +83,9 @@ export async function DELETE(
   try {
     const { productId } = await params;
 
-    const user = await getUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session) {
       return Response.json(
         { message: "Unauthorized", status: "error" },
         { status: 401 },
@@ -95,7 +95,7 @@ export async function DELETE(
     await prisma.wishList.delete({
       where: {
         id: Number(productId),
-        user_id: user.id,
+        user_id: session?.user?.id,
       },
     });
 

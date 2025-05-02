@@ -38,9 +38,14 @@ import Link from "next/link";
 interface ProductCardProps {
   product: ProductItem;
   categories: { id: number; name: string }[];
+  fetchCategories?: () => void;
 }
 
-export default function ProductCard({ product, categories }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  categories,
+  fetchCategories,
+}: ProductCardProps) {
   const [open, setOpen] = useState(false);
   const [isImageError, setIsImageError] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -216,6 +221,7 @@ export default function ProductCard({ product, categories }: ProductCardProps) {
         defaultValues={product}
         productId={product.id}
         categories={categories}
+        fetchCategories={fetchCategories}
       />
       <AlertProductDialog
         open={isAlertOpen}

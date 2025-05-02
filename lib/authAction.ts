@@ -22,7 +22,6 @@ export const signUp = async (formData: SignUpFormData) => {
   });
 
   if (existingUser) {
-    console.log("User already exists");
     return { status: "error" as const, message: "User already exists" };
   }
   const user = await prisma.user.create({
@@ -32,8 +31,6 @@ export const signUp = async (formData: SignUpFormData) => {
       password: hashedPassword,
     },
   });
-
-  console.log("user", user);
 
   if (!user) {
     throw new Error("Failed to create user");

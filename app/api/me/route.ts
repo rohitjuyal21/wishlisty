@@ -1,26 +1,22 @@
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
 import prisma from "@/lib/prisma";
+import { auth } from "@/auth";
 
 export async function GET() {
-  const token = (await cookies()).get("token");
-  if (!token) return new Response("Unauthorized", { status: 401 });
-
   try {
-    const { id } = jwt.verify(token.value, process.env.JWT_SECRET!) as {
-      id: number;
-    };
+    const session = await auth();
 
-    console.log(id);
+    if (!session) {
+      return new Response("Unauthorized", { status: 401 });
+    }
 
     const user = await prisma.user.findUnique({
       where: {
-        id,
+        id: session?.user?.id,
       },
       select: {
         id: true,
         email: true,
-        username: true,
+        name: true,
       },
     });
 

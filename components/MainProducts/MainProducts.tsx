@@ -56,6 +56,7 @@ export default function MainProducts({
               key={product.id}
               product={product}
               categories={categories}
+              fetchCategories={fetchCategories}
             />
           ))}
         </div>
@@ -79,6 +80,7 @@ export default function MainProducts({
         open={open}
         setOpen={setOpen}
         categories={categories}
+        fetchCategories={fetchCategories}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { getUser } from "@/lib/getUser";
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
@@ -7,9 +7,9 @@ export async function POST(req: Request) {
 
     const { isPurchased, id } = body;
 
-    const user = await getUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session) {
       return Response.json(
         { message: "Unauthorized", status: "error" },
         { status: 401 },
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     }
 
     await prisma.wishList.update({
-      where: { id, user_id: user.id },
+      where: { id, user_id: session?.user?.id },
       data: { purchased: isPurchased },
     });
 

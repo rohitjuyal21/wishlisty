@@ -55,6 +55,7 @@ interface AddEditProductModalProps {
   defaultValues?: ProductItem;
   productId?: number;
   categories: { id: number; name: string }[];
+  fetchCategories?: () => void;
 }
 
 export default function AddEditProductModal({
@@ -63,9 +64,9 @@ export default function AddEditProductModal({
   defaultValues,
   productId,
   categories,
+  fetchCategories,
 }: AddEditProductModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState<string | null>(null);
   const router = useRouter();
@@ -101,6 +102,7 @@ export default function AddEditProductModal({
         toast.success("Product added to wishlist");
         router.refresh();
         handleModalChange();
+        fetchCategories?.();
       } else {
         toast.error("Failed to add product");
       }
@@ -128,6 +130,7 @@ export default function AddEditProductModal({
         toast.success("Product updated successfully");
         router.refresh();
         handleModalChange();
+        fetchCategories?.();
       } else {
         toast.error("Failed to update product");
       }
@@ -138,6 +141,8 @@ export default function AddEditProductModal({
       setIsLoading(false);
     }
   };
+
+  console.log(form.watch("category"));
 
   const onSubmit: SubmitHandler<WishlistItemForm> = async (data) => {
     if (defaultValues) {
@@ -162,13 +167,12 @@ export default function AddEditProductModal({
     } else {
       form.reset();
     }
-    setSelectedCategory(null);
     setIsCustomCategory(false);
     setCustomCategory(null);
   };
 
   const handleCategoryChange = (value: string) => {
-    setSelectedCategory(value);
+    form.setValue("category", value);
     if (value === "custom") {
       setIsCustomCategory(true);
     } else {
@@ -298,9 +302,9 @@ export default function AddEditProductModal({
                       </FormControl>
                     ) : (
                       <Select
-                        value={selectedCategory?.toString()}
+                        value={field.value}
                         onValueChange={handleCategoryChange}
-                        defaultValue={field.value?.toString()}
+                        defaultValue={field.value}
                       >
                         <FormControl className="w-full">
                           <SelectTrigger className="capitalize">
