@@ -16,9 +16,8 @@ async function main() {
   });
   await prisma.user.create({
     data: {
-      username: "Rohit Juyal",
+      name: "Rohit Juyal",
       email: "test@gmail.com",
-      password: "1wqdsafqqrqwrw",
       wishlist: {
         createMany: {
           data: [

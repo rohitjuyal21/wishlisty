@@ -1,4 +1,5 @@
 "use client";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -12,14 +13,14 @@ import { Input } from "@/components/ui/input";
 import { signupFormSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import { Eye, EyeOff } from "lucide-react";
+import axios, { AxiosError } from "axios";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import Image from "next/image";
+import { toast } from "sonner";
 export default function Page() {
   const form = useForm<z.infer<typeof signupFormSchema>>({
     resolver: zodResolver(signupFormSchema),
@@ -31,22 +32,28 @@ export default function Page() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const onSubmit = async (value: z.infer<typeof signupFormSchema>) => {
     setIsLoading(true);
     try {
       const response = await axios.post("/api/signup", {
-        username: value.username,
+        name: value.username,
         email: value.email,
         password: value.password,
       });
-      console.log("response", response);
       if (response.data.status === "success") {
-        router.push("/");
+        signIn("credentials", {
+          email: value.email,
+          password: value.password,
+          redirect: false,
+        });
+      } else {
+        toast.error(response.data.message);
       }
     } catch (error) {
-      console.log(error);
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -56,6 +63,19 @@ export default function Page() {
       <h4 className="font-rowdies mb-8 text-center text-2xl font-bold">
         Sign Up
       </h4>
+      <Button variant="secondary" onClick={() => signIn("google")}>
+        <span className="rounded-full bg-white p-0.5">
+          <Image src="/assets/google.svg" alt="google" width={16} height={16} />
+        </span>
+        Sign Up with Google
+      </Button>
+      <div className="my-4 flex items-center">
+        <div className="bg-border h-[1px] flex-1"></div>
+        <span className="text-muted-foreground mx-2 text-xs">
+          Or continue with email
+        </span>
+        <div className="bg-border h-[1px] flex-1"></div>
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -127,7 +147,8 @@ export default function Page() {
             )}
           />
           <Button className="w-full" disabled={isLoading}>
-            {isLoading ? "Loading..." : "Sign Up"}
+            {isLoading && <Loader2 className="size-4 animate-spin" />}
+            Sign Up
           </Button>
           <p className="text-muted-foreground text-center text-sm">
             Already have an account?{" "}

@@ -12,10 +12,10 @@ import { Input } from "@/components/ui/input";
 import { signinFormSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { Eye, EyeOff } from "lucide-react";
+import { signIn } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -30,19 +30,15 @@ export default function Page() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const onSubmit = async (value: z.infer<typeof signinFormSchema>) => {
     setIsLoading(true);
     try {
-      const response = await axios.post("/api/signin", {
+      await signIn("credentials", {
         email: value.email,
         password: value.password,
+        redirectTo: "/",
       });
-      console.log("response", response);
-      if (response.data.status === "success") {
-        router.push("/");
-      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -54,6 +50,20 @@ export default function Page() {
       <h4 className="font-rowdies mb-8 text-center text-2xl font-bold">
         Sign In
       </h4>
+      <Button variant="secondary" onClick={() => signIn("google")}>
+        <span className="rounded-full bg-white p-0.5">
+          <Image src="/assets/google.png" width={16} height={16} alt="google" />
+        </span>
+        Sign In with Google
+      </Button>
+      <div className="my-4 flex items-center">
+        <div className="bg-border h-[1px] flex-1"></div>
+        <span className="text-muted-foreground mx-2 text-xs">
+          Or continue with email
+        </span>
+        <div className="bg-border h-[1px] flex-1"></div>
+      </div>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
