@@ -76,10 +76,11 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { productId: string } },
-) {
+export async function DELETE({
+  params,
+}: {
+  params: Promise<{ productId: string }>;
+}) {
   try {
     const { productId } = await params;
 
