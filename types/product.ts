@@ -12,5 +12,5 @@ export interface ProductItem {
   createdAt: Date;
   updatedAt: Date;
   remindAt: Date;
-  user_id: number;
+  user_id: string;
 }

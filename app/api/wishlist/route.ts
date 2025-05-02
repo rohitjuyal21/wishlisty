@@ -1,4 +1,4 @@
-import { getUser } from "@/lib/getUser";
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
@@ -14,10 +14,9 @@ export async function POST(req: Request) {
       purchased,
       remindAt,
     } = body;
-    const user = await getUser();
-    console.log("user", user);
+    const session = await auth();
 
-    if (!user) {
+    if (!session) {
       return Response.json(
         { message: "Unauthorized", status: "error" },
         { status: 401 },
@@ -48,7 +47,7 @@ export async function POST(req: Request) {
         category_id,
         purchased,
         remindAt,
-        user_id: user.id,
+        user_id: session?.user?.id as string,
       },
     });
 

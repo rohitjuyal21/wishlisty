@@ -1,18 +1,23 @@
+import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
-  const token = req.cookies.get("token");
-  const { pathname } = req.nextUrl;
-
-  // if (!token) {
-  //   return NextResponse.redirect(new URL("/signin", req.url));
-  // }
-
-  if (pathname.startsWith("/signin") || pathname.startsWith("/signup")) {
-    return NextResponse.next();
+export default async function middleware(req: NextRequest) {
+  const session = await auth();
+  console.log(session);
+  if (
+    !session &&
+    req.nextUrl.pathname !== "/signin" &&
+    req.nextUrl.pathname !== "/signup"
+  ) {
+    return NextResponse.redirect(new URL("/signin", req.url));
   }
 
-  return NextResponse.next();
+  if (
+    session &&
+    (req.nextUrl.pathname === "/signin" || req.nextUrl.pathname === "/signup")
+  ) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
 }
 
 export const config = {

@@ -1,6 +1,6 @@
+import { auth } from "@/auth";
 import PriorityFilter from "@/components/MainProducts/PriorityFilter";
 import ProductCard from "@/components/MainProducts/ProductCard";
-import { getUser } from "@/lib/getUser";
 import prisma from "@/lib/prisma";
 import Image from "next/image";
 import React from "react";
@@ -12,11 +12,11 @@ export default async function page({
 }) {
   const { priority, category } = await searchParams;
 
-  const user = await getUser();
+  const session = await auth();
 
   const purchasedPoducts = await prisma.wishList.findMany({
     where: {
-      user_id: user?.id,
+      user_id: session?.user?.id,
       ...(priority &&
         priority !== "all" && {
           priority: priority.toUpperCase(),
