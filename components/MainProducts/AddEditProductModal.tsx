@@ -142,8 +142,6 @@ export default function AddEditProductModal({
     }
   };
 
-  console.log(form.watch("category"));
-
   const onSubmit: SubmitHandler<WishlistItemForm> = async (data) => {
     if (defaultValues) {
       await editProduct(data);
