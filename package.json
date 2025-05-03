@@ -7,7 +7,8 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "dev:cron": "tsx scripts/fakecron.ts"
+    "dev:cron": "tsx scripts/fakecron.ts",
+    "postinstall": "npm install --legacy-peer-deps"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
