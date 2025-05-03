@@ -2,13 +2,23 @@ import * as React from "react";
 import { EmailTemplate } from "@/components/EmailTemplate";
 import { Resend } from "resend";
 import prisma from "@/lib/prisma";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import dayjs from "dayjs";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET() {
-  const startOfToday = dayjs().startOf("day").toDate();
-  const endOfToday = dayjs().endOf("day").toDate();
+  dayjs.extend(utc);
+  dayjs.extend(timezone);
+
+  const TIMEZONE = "Asia/Kolkata";
+
+  const startOfToday = dayjs().tz(TIMEZONE).startOf("day").toDate();
+  const endOfToday = dayjs().tz(TIMEZONE).endOf("day").toDate();
 
   console.log("API key:", process.env.RESEND_API_KEY);
 
