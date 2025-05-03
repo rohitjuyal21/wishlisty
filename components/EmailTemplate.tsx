@@ -1,11 +1,9 @@
-// components/EmailTemplate.tsx
 import { Html } from "@react-email/html";
-import { Text } from "@react-email/text";
-import { Button } from "@react-email/button";
 import { Container } from "@react-email/container";
 import { Section } from "@react-email/section";
+import { Button } from "@react-email/button";
+import { Text } from "@react-email/text";
 import { Heading } from "@react-email/heading";
-
 type EmailTemplateProps = {
   firstName: string;
   productName: string;
