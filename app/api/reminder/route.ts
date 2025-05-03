@@ -10,6 +10,12 @@ export async function GET() {
   const startOfToday = dayjs().startOf("day").toDate();
   const endOfToday = dayjs().endOf("day").toDate();
 
+  console.log("API key:", process.env.RESEND_API_KEY);
+
+  console.log("✅ Reminder API hit");
+  console.log("Start of today:", startOfToday);
+  console.log("End of today:", endOfToday);
+
   const productsToRemind = await prisma.wishList.findMany({
     where: {
       remindAt: {
@@ -23,8 +29,16 @@ export async function GET() {
     },
   });
 
+  console.log(`🎯 Found ${productsToRemind.length} products to remind`);
+
+  if (!productsToRemind.length) {
+    return Response.json({ status: "no-products" });
+  }
+
   try {
     for (const product of productsToRemind) {
+      console.log(`📧 Sending email to ${product?.user?.email}`);
+
       const { error } = await resend.emails.send({
         from: "Wishlisty <wishlisty@rohitjuyal.com>",
         to: [product?.user?.email] as string[],
@@ -37,12 +51,16 @@ export async function GET() {
       });
 
       if (error) {
+        console.error("❌ Error sending email:", error);
         return Response.json({ status: "error", error }, { status: 500 });
       }
+
+      console.log("✅ Email sent successfully");
     }
 
     return Response.json({ status: "success" });
   } catch (error) {
+    console.error("❌ Unexpected error:", error);
     return Response.json({ status: "error", error }, { status: 500 });
   }
 }
