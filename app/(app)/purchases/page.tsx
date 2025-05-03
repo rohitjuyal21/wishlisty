@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import PriorityFilter from "@/components/MainProducts/PriorityFilter";
 import ProductCard from "@/components/MainProducts/ProductCard";
 import prisma from "@/lib/prisma";
+import { ProductItem } from "@/types/product";
 import Image from "next/image";
 import React from "react";
 
@@ -48,7 +49,7 @@ export default async function page({
       </div>
       {purchasedPoducts.length > 0 ? (
         <div className="my-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-3">
-          {purchasedPoducts.map((product) => (
+          {purchasedPoducts.map((product: ProductItem) => (
             <ProductCard
               key={product.id}
               product={product}

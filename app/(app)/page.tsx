@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import MainProducts from "@/components/MainProducts/MainProducts";
 import prisma from "@/lib/prisma";
+import { ProductItem } from "@/types/product";
 
 export default async function Home({
   searchParams,
@@ -28,7 +29,7 @@ export default async function Home({
     },
   });
 
-  const sortedProducts = products.sort((a, b) => {
+  const sortedProducts = products.sort((a: ProductItem, b: ProductItem) => {
     if (a.purchased && !b.purchased) return 1;
     if (!a.purchased && b.purchased) return -1;
     return 0;
