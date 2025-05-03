@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST() {
+export async function GET() {
   const startOfToday = dayjs().startOf("day").toDate();
   const endOfToday = dayjs().endOf("day").toDate();
 
