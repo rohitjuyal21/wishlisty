@@ -11,7 +11,19 @@ dayjs.extend(timezone);
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function GET() {
+export async function GET(req: Request) {
+  const API_SECRET = process.env.REMINDER_API_SECRET;
+
+  console.log("API_SECRET", API_SECRET);
+  const authHeader = req.headers.get("Authorization");
+
+  if (authHeader !== `Bearer ${API_SECRET}`) {
+    return Response.json(
+      { status: "error", error: "Unauthorized" },
+      { status: 401 },
+    );
+  }
+
   dayjs.extend(utc);
   dayjs.extend(timezone);
 
@@ -42,8 +54,9 @@ export async function GET() {
       const { error } = await resend.emails.send({
         from: "Wishlisty <wishlisty@rohitjuyal.com>",
         to: [product?.user?.email] as string[],
-        subject: "Reminder about your wishlist item",
+        subject: `Don't forget about ${product?.productName} - still waiting in your wishlist!`,
         react: React.createElement(EmailTemplate, {
+          key: product?.id,
           firstName: product?.user?.name as string,
           productName: product?.productName as string,
           productLink: product?.productLink as string,
