@@ -19,6 +19,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import google from "/public/assets/google.png";
 
 export default function Page() {
   const form = useForm<z.infer<typeof signinFormSchema>>({
@@ -52,7 +53,7 @@ export default function Page() {
       </h4>
       <Button variant="secondary" onClick={() => signIn("google")}>
         <span className="rounded-full bg-white p-0.5">
-          <Image src="/assets/google.png" width={16} height={16} alt="google" />
+          <Image src={google} width={16} height={16} alt="google" />
         </span>
         Sign In with Google
       </Button>
@@ -63,7 +64,6 @@ export default function Page() {
         </span>
         <div className="bg-border h-[1px] flex-1"></div>
       </div>
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

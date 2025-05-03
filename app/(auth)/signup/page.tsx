@@ -21,6 +21,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Image from "next/image";
 import { toast } from "sonner";
+import google from "/public/assets/google.png";
+
 export default function Page() {
   const form = useForm<z.infer<typeof signupFormSchema>>({
     resolver: zodResolver(signupFormSchema),
@@ -65,7 +67,7 @@ export default function Page() {
       </h4>
       <Button variant="secondary" onClick={() => signIn("google")}>
         <span className="rounded-full bg-white p-0.5">
-          <Image src="/assets/google.svg" alt="google" width={16} height={16} />
+          <Image src={google} alt="google" width={16} height={16} />
         </span>
         Sign Up with Google
       </Button>
