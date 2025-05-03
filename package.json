@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "postinstall": "npm install --legacy-peer-deps",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "dev:cron": "tsx scripts/fakecron.ts",
-    "postinstall": "npm install --legacy-peer-deps"
+    "dev:cron": "tsx scripts/fakecron.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
