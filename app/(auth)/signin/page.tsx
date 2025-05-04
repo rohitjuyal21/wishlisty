@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { signinFormSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -122,7 +122,8 @@ export default function Page() {
             )}
           />
           <Button className="w-full" disabled={isLoading}>
-            {isLoading ? "Loading..." : "Sign In"}
+            {isLoading && <Loader2 className="size-4 animate-spin" />}
+            Sign In
           </Button>
           <p className="text-muted-foreground text-center text-sm">
             Don&apos;t have an account?{" "}
