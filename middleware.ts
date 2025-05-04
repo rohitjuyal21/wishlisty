@@ -1,13 +1,11 @@
 import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 
+const publicRoutes = ["/", "/signin", "/signup"];
+
 export default async function middleware(req: NextRequest) {
   const session = await auth();
-  if (
-    !session &&
-    req.nextUrl.pathname !== "/signin" &&
-    req.nextUrl.pathname !== "/signup"
-  ) {
+  if (!session && !publicRoutes.includes(req.nextUrl.pathname)) {
     return NextResponse.redirect(new URL("/signin", req.url));
   }
 

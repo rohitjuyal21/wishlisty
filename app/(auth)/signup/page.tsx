@@ -47,7 +47,7 @@ export default function Page() {
         signIn("credentials", {
           email: value.email,
           password: value.password,
-          redirect: false,
+          redirectTo: "/dashboard",
         });
       } else {
         toast.error(response.data.message);
@@ -65,7 +65,10 @@ export default function Page() {
       <h4 className="font-rowdies mb-8 text-center text-2xl font-bold">
         Sign Up
       </h4>
-      <Button variant="secondary" onClick={() => signIn("google")}>
+      <Button
+        variant="secondary"
+        onClick={() => signIn("google", { redirectTo: "/dashboard" })}
+      >
         <span className="rounded-full bg-white p-0.5">
           <Image src={google} alt="google" width={16} height={16} />
         </span>

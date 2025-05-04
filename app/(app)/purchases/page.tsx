@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import PriorityFilter from "@/components/MainProducts/PriorityFilter";
 import ProductCard from "@/components/MainProducts/ProductCard";
+import MobileSidebar from "@/components/Sidebar/MobileSidebar";
 import prisma from "@/lib/prisma";
 import { ProductItem } from "@/types/product";
 import Image from "next/image";
@@ -43,10 +44,13 @@ export default async function page({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-extrabold">Your Purchases</h3>
-        <PriorityFilter />
+      <div className="flex items-center gap-2">
+        <div className="md:hidden">
+          <MobileSidebar />
+        </div>
+        <h3 className="text-xl font-extrabold md:text-2xl">Your Purchases</h3>
       </div>
+
       {purchasedPoducts.length > 0 ? (
         <div className="my-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-3">
           {purchasedPoducts.map((product: ProductItem) => (

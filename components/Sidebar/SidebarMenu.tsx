@@ -9,7 +9,7 @@ import clsx from "clsx";
 export const sidebarItems = [
   {
     label: "Dashboard",
-    href: "/",
+    href: "/dashboard",
     icon: LayoutDashboard,
   },
   {

@@ -38,7 +38,7 @@ export default function Page() {
       await signIn("credentials", {
         email: value.email,
         password: value.password,
-        redirectTo: "/",
+        redirectTo: "/dashboard",
       });
     } catch (error) {
       console.log(error);
@@ -51,7 +51,10 @@ export default function Page() {
       <h4 className="font-rowdies mb-8 text-center text-2xl font-bold">
         Sign In
       </h4>
-      <Button variant="secondary" onClick={() => signIn("google")}>
+      <Button
+        variant="secondary"
+        onClick={() => signIn("google", { redirectTo: "/dashboard" })}
+      >
         <span className="rounded-full bg-white p-0.5">
           <Image src={google} width={16} height={16} alt="google" />
         </span>

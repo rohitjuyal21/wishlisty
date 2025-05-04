@@ -9,6 +9,7 @@ import { Plus } from "lucide-react";
 import PriorityFilter from "./PriorityFilter";
 import axios from "axios";
 import { toast } from "sonner";
+import MobileSidebar from "../Sidebar/MobileSidebar";
 
 export default function MainProducts({
   products,
@@ -35,9 +36,14 @@ export default function MainProducts({
   }, []);
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-extrabold">Your WishList</h3>
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between md:gap-0">
         <div className="flex items-center gap-2">
+          <div className="md:hidden">
+            <MobileSidebar />
+          </div>
+          <h3 className="text-xl font-extrabold md:text-2xl">Your WishList</h3>
+        </div>
+        <div className="flex items-center justify-between gap-2 md:justify-start">
           <PriorityFilter />
           <Button
             variant="default"
@@ -50,7 +56,7 @@ export default function MainProducts({
         </div>
       </div>
       {products.length > 0 ? (
-        <div className="my-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-3">
+        <div className="my-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {products.map((product) => (
             <ProductCard
               key={product.id}
