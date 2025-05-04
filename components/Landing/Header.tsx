@@ -13,6 +13,8 @@ import {
 import { Menu } from "lucide-react";
 import { Session } from "next-auth";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { motion } from "framer-motion";
+import { MotionConfig } from "framer-motion";
 
 interface HeaderProps {
   session: Session | null;
@@ -31,8 +33,11 @@ export default function Header({ session }: HeaderProps) {
   }, []);
 
   return (
-    <header
-      className={`fixed top-0 z-30 w-full transition-all ${
+    <motion.header
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className={`fixed top-0 z-30 w-full ${
         scrolled
           ? "bg-background/80 border-b backdrop-blur-xs"
           : "bg-transparent"
@@ -132,6 +137,6 @@ export default function Header({ session }: HeaderProps) {
           </Sheet>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
